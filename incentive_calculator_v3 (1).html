@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decarbonization Incentive Engine v3</title>
+  <style>
+    :root {
+      --bg:#eff4fb;
+      --panel:#ffffff;
+      --ink:#162235;
+      --muted:#5f6f86;
+      --line:#d4deec;
+      --blue:#0057a8;
+      --blue2:#1776d2;
+      --green:#1b8b5a;
+      --gold:#c78b17;
+      --orange:#cf6a00;
+      --red:#b94d4d;
+      --soft-blue:#eef5ff;
+      --soft-green:#eef9f3;
+      --soft-gold:#fff8e8;
+      --shadow:0 8px 24px rgba(12,34,66,.08);
+      --radius:18px;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+    }
+    .wrap { max-width:1600px; margin:0 auto; padding:22px; }
+    .hero {
+      background:linear-gradient(135deg, var(--blue) 0%, var(--blue2) 60%, #5ca9ff 100%);
+      color:#fff; border-radius:24px; padding:26px 28px; box-shadow:var(--shadow); margin-bottom:18px;
+    }
+    .hero h1 { margin:0 0 8px; font-size:32px; }
+    .hero p { margin:8px 0; line-height:1.45; max-width:1100px; color:rgba(255,255,255,.95); }
+    .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .layout { display:grid; grid-template-columns:1.2fr .8fr; gap:18px; align-items:start; }
+    .stack { display:grid; gap:16px; }
+    .card {
+      background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px;
+    }
+    .card h2,.card h3 { margin:0 0 10px; }
+    .subtle { color:var(--muted); font-size:13px; line-height:1.5; }
+    .grid2,.grid3,.grid4,.grid5 { display:grid; gap:10px; }
+    .grid2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .grid3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .grid4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
+    .grid5 { grid-template-columns:repeat(5,minmax(0,1fr)); }
+    label { display:block; font-size:12px; font-weight:700; color:#233452; margin-bottom:5px; }
+    input,select,textarea {
+      width:100%; padding:10px 11px; border:1px solid #c7d4e6; border-radius:10px; font-size:14px; color:var(--ink); background:#fff;
+    }
+    textarea { min-height:86px; resize:vertical; }
+    button {
+      border:0; border-radius:10px; padding:11px 15px; font-size:14px; font-weight:700; cursor:pointer;
+    }
+    .primary { background:var(--blue); color:#fff; }
+    .secondary { background:var(--soft-blue); color:var(--blue); }
+    .ghost { background:#eef2f6; color:var(--ink); }
+    .good { background:var(--soft-green); color:var(--green); }
+    .metric-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .metric {
+      border:1px solid var(--line); border-radius:15px; padding:14px; background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);
+    }
+    .metric .k { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+    .metric .v { font-size:26px; font-weight:800; margin-top:6px; }
+    .metric .s { font-size:12px; color:var(--muted); margin-top:5px; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:var(--soft-blue); color:var(--blue); font-size:12px; font-weight:700; margin:4px 6px 0 0; }
+    .measure-card { border:1px solid var(--line); border-radius:15px; padding:12px; background:#fbfdff; }
+    .measure-head { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:10px; }
+    .measure-title { font-weight:800; color:var(--blue); }
+    .cat-tag { font-size:11px; font-weight:700; color:#6c7e98; background:#f2f6fb; padding:5px 8px; border-radius:999px; }
+    .switch { display:flex; align-items:center; gap:8px; }
+    .switch input { width:18px; height:18px; }
+    .prog-card { border:1px solid var(--line); border-radius:14px; padding:12px; background:#fcfdff; }
+    .prog-head { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:10px; }
+    .scenario-table td, .scenario-table th, table td, table th {
+      border-bottom:1px solid var(--line); padding:8px 7px; text-align:left; vertical-align:top; font-size:13px;
+    }
+    table { width:100%; border-collapse:collapse; }
+    th { background:#f3f7fd; color:#223555; }
+    .right { text-align:right; }
+    .note { background:var(--soft-gold); border-left:4px solid var(--gold); padding:12px 13px; border-radius:10px; color:#5e4b18; font-size:13px; line-height:1.5; }
+    .proposal { background:linear-gradient(180deg,#ffffff 0%,#f9fbff 100%); }
+    .proposal h2 { color:var(--blue); }
+    .proposal-block { border:1px solid var(--line); border-radius:14px; padding:12px; margin-top:10px; }
+    .mini { font-size:12px; color:var(--muted); }
+    .alert { color:var(--orange); font-weight:700; }
+    .footer-disclaimer { font-size:12px; color:var(--muted); line-height:1.5; margin-top:10px; }
+    details { border:1px solid var(--line); border-radius:14px; background:#fff; }
+    details + details { margin-top:10px; }
+    summary { cursor:pointer; list-style:none; padding:12px 14px; font-weight:800; color:var(--ink); }
+    details[open] summary { border-bottom:1px solid var(--line); }
+    .pad { padding:12px 14px 14px; }
+    .divider { height:1px; background:var(--line); margin:12px 0; }
+    @media (max-width:1200px) {
+      .layout { grid-template-columns:1fr; }
+      .grid2,.grid3,.grid4,.grid5,.metric-grid { grid-template-columns:1fr; }
+    }
+    @media print {
+      body { background:#fff; }
+      .wrap { max-width:none; padding:0; }
+      .hero,.card { box-shadow:none; }
+      .toolbar, .hide-print { display:none !important; }
+      details { border:none; }
+      summary { padding-left:0; }
+      .layout { grid-template-columns:1fr; }
+      .card { break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>Rimkus Incentive Engine v3</h1>
+    <p>Client-facing screening calculator for decarbonization funding, incentive stacking, annual utility savings, greenhouse gas reduction, and Version 3 NOI / cap-rate impact modelling. This version adds valuation assumptions so teams can connect savings and incentives to asset value strategy.</p>
+    <p>This remains a screening tool. Final incentive values, utility impacts, and eligibility must be confirmed through engineering review, program validation, and actual site conditions.</p>
+    <div class="toolbar hide-print">
+      <button class="primary" onclick="calculateAll()">Calculate</button>
+      <button class="secondary" onclick="saveData()">Save to browser</button>
+      <button class="ghost" onclick="loadData()">Reload saved</button>
+      <button class="ghost" onclick="resetDefaults()">Reset defaults</button>
+      <button class="ghost" onclick="window.print()">Print / PDF</button>
+      <button class="good" onclick="copySummary()">Copy client summary</button>
+    </div>
+  </section>
+
+  <div class="layout">
+    <div class="stack">
+      <section class="card">
+        <h2>1) Project and baseline</h2>
+        <div class="grid4">
+          <div><label for="clientName">Client / portfolio</label><input id="clientName" value="Sample Client"></div>
+          <div><label for="projectName">Project name</label><input id="projectName" value="Portfolio decarbonization screen"></div>
+          <div><label for="province">Province</label><select id="province"><option selected>Ontario</option><option>British Columbia</option><option>Alberta</option><option>Quebec</option><option>Nova Scotia</option><option>Other</option></select></div>
+          <div><label for="city">City</label><input id="city" value="Toronto"></div>
+        </div>
+        <div class="grid5" style="margin-top:10px;">
+          <div><label for="buildingType">Building type</label><select id="buildingType"><option>Office</option><option selected>Light Industrial</option><option>Retail / Plaza</option><option>Warehouse</option><option>School</option><option>Hospital</option><option>Multi-Residential</option><option>Mixed Use</option></select></div>
+          <div><label for="siteCount">Number of sites</label><input id="siteCount" type="number" min="1" value="1"></div>
+          <div><label for="area">Total area (ft²)</label><input id="area" type="number" min="0" value="100000"></div>
+          <div><label for="yearBuilt">Year built</label><input id="yearBuilt" type="number" value="1998"></div>
+          <div><label for="heatingFuel">Primary heating fuel</label><select id="heatingFuel"><option selected>Natural Gas</option><option>Electric</option><option>Hybrid</option><option>District Energy</option></select></div>
+        </div>
+        <div class="grid4" style="margin-top:10px;">
+          <div><label for="climateFactor">Climate / heating weight</label><input id="climateFactor" type="number" step="0.05" min="0.50" max="1.50" value="1.00"></div>
+          <div><label for="gasGhgi">Gas factor (kg CO₂e / m³)</label><input id="gasGhgi" type="number" step="0.001" value="1.89"></div>
+          <div><label for="elecGhgi">Electric factor (kg CO₂e / kWh)</label><input id="elecGhgi" type="number" step="0.0001" value="0.0300"></div>
+          <div><label for="waterGhgi">Water factor (kg CO₂e / m³ water)</label><input id="waterGhgi" type="number" step="0.0001" value="0.3440"></div>
+        </div>
+        <div class="grid4" style="margin-top:10px;">
+          <div><label for="priceEscalation">Utility escalation view (%)</label><input id="priceEscalation" type="number" step="0.1" value="0.0"></div>
+          <div><label for="waterUnitRate">Water / sewer rate ($/m³)</label><input id="waterUnitRate" type="number" step="0.01" value="4.75"></div>
+          <div><label for="overlapFactor">Savings overlap factor (%)</label><input id="overlapFactor" type="number" step="1" value="85"></div>
+          <div><label for="maxSavingsCap">Max total savings cap (%)</label><input id="maxSavingsCap" type="number" step="1" value="65"></div>
+        </div>
+        <div style="margin-top:10px;"><label for="notes">Notes</label><textarea id="notes">Quick client-facing estimate for funding potential, annual utility savings, and carbon reduction.</textarea></div>
+      </section>
+
+      <section class="card">
+        <h2>2) Two-year utility baseline</h2>
+        <p class="subtle">The calculator averages 2 years of electricity, gas, and water usage. Water can now be tracked as actual m³ and cost savings are derived from the blended water/sewer rate.</p>
+        <div class="grid2">
+          <div class="measure-card">
+            <div class="measure-title">Year 1</div>
+            <div class="grid3" style="margin-top:10px;">
+              <div><label for="y1kwh">Electricity (kWh)</label><input id="y1kwh" type="number" value="1450000"></div>
+              <div><label for="y1kw">Demand (kW, optional)</label><input id="y1kw" type="number" value="420"></div>
+              <div><label for="y1elecRate">Electric rate ($/kWh)</label><input id="y1elecRate" type="number" step="0.0001" value="0.1450"></div>
+              <div><label for="y1gas">Gas (m³)</label><input id="y1gas" type="number" value="160000"></div>
+              <div><label for="y1gasRate">Gas rate ($/m³)</label><input id="y1gasRate" type="number" step="0.0001" value="0.4200"></div>
+              <div><label for="y1waterM3">Water (m³)</label><input id="y1waterM3" type="number" value="6737"></div>
+            </div>
+          </div>
+          <div class="measure-card">
+            <div class="measure-title">Year 2</div>
+            <div class="grid3" style="margin-top:10px;">
+              <div><label for="y2kwh">Electricity (kWh)</label><input id="y2kwh" type="number" value="1380000"></div>
+              <div><label for="y2kw">Demand (kW, optional)</label><input id="y2kw" type="number" value="398"></div>
+              <div><label for="y2elecRate">Electric rate ($/kWh)</label><input id="y2elecRate" type="number" step="0.0001" value="0.1520"></div>
+              <div><label for="y2gas">Gas (m³)</label><input id="y2gas" type="number" value="149000"></div>
+              <div><label for="y2gasRate">Gas rate ($/m³)</label><input id="y2gasRate" type="number" step="0.0001" value="0.4550"></div>
+              <div><label for="y2waterM3">Water (m³)</label><input id="y2waterM3" type="number" value="7105"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>3) Measure libraries and selected upgrades</h2>
+        <p class="subtle">Use the library selectors to quickly load common upgrade packages. Each line carries editable assumptions for cost, utility impact, GHG reduction, and incentive eligibility. Add or change assumptions directly if you need to adapt them during a call.</p>
+        <details open>
+          <summary>Envelope</summary>
+          <div class="pad" id="catEnvelope"></div>
+        </details>
+        <details open>
+          <summary>Mechanical</summary>
+          <div class="pad" id="catMechanical"></div>
+        </details>
+        <details open>
+          <summary>Electrical</summary>
+          <div class="pad" id="catElectrical"></div>
+        </details>
+        <details open>
+          <summary>Plumbing / Water</summary>
+          <div class="pad" id="catPlumbing"></div>
+        </details>
+      </section>
+
+      <section class="card">
+        <h2>4.5) NOI and cap-rate assumptions</h2>
+        <p class="subtle">Use this section to translate recurring savings into operating income and value impact. Incentives reduce net capital, while recurring utility and maintenance savings can support NOI uplift and implied asset value creation.</p>
+        <div class="grid4">
+          <div><label for="currentAssetValue">Current asset / portfolio value ($)</label><input id="currentAssetValue" type="number" value="25000000"></div>
+          <div><label for="currentNoi">Current annual NOI ($)</label><input id="currentNoi" type="number" value="2200000"></div>
+          <div><label for="marketCapRate">Market cap rate (%)</label><input id="marketCapRate" type="number" step="0.01" value="6.00"></div>
+          <div><label for="exitCapRate">Underwritten / exit cap rate (%)</label><input id="exitCapRate" type="number" step="0.01" value="6.50"></div>
+        </div>
+        <div class="grid4" style="margin-top:10px;">
+          <div><label for="noiCapture">NOI capture of annual savings (%)</label><input id="noiCapture" type="number" step="1" value="100"></div>
+          <div><label for="maintenanceSavings">Additional annual avoided maintenance ($)</label><input id="maintenanceSavings" type="number" value="50000"></div>
+          <div><label for="rentPremium">Annual rent / occupancy uplift ($)</label><input id="rentPremium" type="number" value="0"></div>
+          <div><label for="investmentHorizon">Hold period (years)</label><input id="investmentHorizon" type="number" step="1" value="5"></div>
+        </div>
+        <div class="grid4" style="margin-top:10px;">
+          <div><label for="annualEscalation">Annual savings escalation (%)</label><input id="annualEscalation" type="number" step="0.1" value="2.5"></div>
+          <div><label for="softCostPremium">Soft cost / contingency on net capex (%)</label><input id="softCostPremium" type="number" step="0.1" value="0.0"></div>
+          <div><label for="includeInNoi">Include water savings in NOI</label><select id="includeInNoi"><option selected>Yes</option><option>No</option></select></div>
+          <div><label for="valueMethod">Primary value method</label><select id="valueMethod"><option selected>Market cap rate</option><option>Exit cap rate</option></select></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>4) Incentive stacking engine</h2>
+        <p class="subtle">Each program card can be enabled, assigned a funding type, and given its own % assumptions, cap, eligibility category, and stacking behavior. The model applies caps, then multiplies by stacking compatibility and category relevance. Conservative, expected, and aggressive scenarios are generated automatically.</p>
+        <div class="grid2" id="programCards"></div>
+        <div class="note" style="margin-top:12px;">
+          Version 2 logic now distinguishes between broad funding, gas-centric incentives, electric incentives, water incentives, and financing/performance funding. This creates a more realistic range than simply adding all percentages together.
+        </div>
+      </section>
+    </div>
+
+    <div class="stack">
+      <section class="card">
+        <h2>Results snapshot</h2>
+        <div class="metric-grid">
+          <div class="metric"><div class="k">Gross capex</div><div class="v" id="outCapex">$0</div><div class="s">Selected measures only</div></div>
+          <div class="metric"><div class="k">Funding range</div><div class="v" id="outFunding">$0 - $0</div><div class="s">Conservative to aggressive</div></div>
+          <div class="metric"><div class="k">Net client capital</div><div class="v" id="outNet">$0 - $0</div><div class="s">After incentive range</div></div>
+          <div class="metric"><div class="k">Annual utility savings</div><div class="v" id="outAnnual">$0</div><div class="s">Electricity + gas + water</div></div>
+          <div class="metric"><div class="k">Annual GHG reduction</div><div class="v" id="outGhg">0 tCO₂e</div><div class="s">Utility-based estimate</div></div>
+          <div class="metric"><div class="k">Simple payback</div><div class="v" id="outPayback">0 yrs</div><div class="s">Using expected funding scenario</div></div>
+        </div>
+        <div style="margin-top:10px;">
+          <span class="pill" id="tagElec">0% electricity reduction</span>
+          <span class="pill" id="tagGas">0% gas reduction</span>
+          <span class="pill" id="tagWater">0% water reduction</span>
+          <span class="pill" id="tagPrograms">0 active programs</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Scenario view</h3>
+        <table class="scenario-table">
+          <thead><tr><th>Scenario</th><th class="right">Funding</th><th class="right">Net capital</th><th class="right">Payback</th></tr></thead>
+          <tbody id="scenarioTable"></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h3>NOI / cap-rate impact</h3>
+        <div class="metric-grid">
+          <div class="metric"><div class="k">Annual NOI uplift</div><div class="v" id="outNoi">$0</div><div class="s">Utility + maintenance + rent capture</div></div>
+          <div class="metric"><div class="k">Implied value uplift</div><div class="v" id="outValue">$0</div><div class="s">Using selected cap-rate method</div></div>
+          <div class="metric"><div class="k">Value creation ratio</div><div class="v" id="outValueRatio">0.0x</div><div class="s">Value uplift ÷ expected net capital</div></div>
+          <div class="metric"><div class="k">Expected net yield</div><div class="v" id="outNetYield">0.0%</div><div class="s">NOI uplift ÷ expected net capital</div></div>
+        </div>
+        <table style="margin-top:10px;">
+          <thead><tr><th>Metric</th><th class="right">Value</th></tr></thead>
+          <tbody id="noiTable"></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h3>Baseline vs post-upgrade</h3>
+        <table>
+          <thead><tr><th>Metric</th><th class="right">Baseline</th><th class="right">Reduction</th><th class="right">Post-upgrade</th></tr></thead>
+          <tbody id="baselineTable"></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h3>Measure impact table</h3>
+        <table>
+          <thead><tr><th>Measure</th><th class="right">Capex</th><th class="right">Elec $/yr</th><th class="right">Gas $/yr</th><th class="right">Water $/yr</th><th class="right">tCO₂e/yr</th></tr></thead>
+          <tbody id="measureTable"></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h3>Program stack detail</h3>
+        <table>
+          <thead><tr><th>Program</th><th class="right">Conservative</th><th class="right">Expected</th><th class="right">Aggressive</th></tr></thead>
+          <tbody id="programOut"></tbody>
+        </table>
+      </section>
+
+      <section class="card proposal">
+        <h2>Proposal-style client summary</h2>
+        <div class="proposal-block">
+          <div class="mini">Executive summary</div>
+          <div id="proposalExecutive"></div>
+        </div>
+        <div class="proposal-block">
+          <div class="mini">Funding strategy</div>
+          <div id="proposalFunding"></div>
+        </div>
+        <div class="proposal-block">
+          <div class="mini">Upgrade highlights</div>
+          <div id="proposalMeasures"></div>
+        </div>
+        <div class="proposal-block">
+          <div class="mini">NOI / valuation view</div>
+          <div id="proposalNoi"></div>
+        </div>
+        <div class="proposal-block">
+          <div class="mini">Narrative summary</div>
+          <textarea id="summaryBox"></textarea>
+        </div>
+        <div class="footer-disclaimer">Preliminary screening estimate only. Final savings, utility reduction, funding, and program eligibility depend on verified baseline data, engineering scope, utility/program approval, incentive timing, and project-specific conditions.</div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const measureLibrary = [
+  {id:'envRoof', category:'Envelope', title:'Roof insulation upgrade', defaultType:'Roof replacement R20 to R30', cost:650000, elec:2.5, gas:4.0, water:0, notes:'Envelope heat-loss reduction and lifecycle renewal.'},
+  {id:'envWalls', category:'Envelope', title:'Wall / air sealing package', defaultType:'Medium air sealing + insulation', cost:525000, elec:1.5, gas:6.5, water:0, notes:'Controls infiltration and lowers heating load.'},
+  {id:'envWindows', category:'Envelope', title:'Windows / doors / glazing', defaultType:'Double to high-performance system', cost:450000, elec:1.8, gas:5.2, water:0, notes:'Improves comfort, heat retention, and envelope quality.'},
+  {id:'mechRTU', category:'Mechanical', title:'RTU / hybrid heat pump package', defaultType:'RTU to hybrid heat pump', cost:980000, elec:8.0, gas:18.0, water:0, notes:'Large decarbonization lever with fuel switching potential.'},
+  {id:'mechBoiler', category:'Mechanical', title:'Boiler / plant optimization', defaultType:'Condensing boiler + controls', cost:620000, elec:1.5, gas:11.5, water:0, notes:'Strong gas reduction for heating-dominant assets.'},
+  {id:'mechControls', category:'Mechanical', title:'BAS / recommissioning', defaultType:'Controls optimization', cost:180000, elec:4.0, gas:5.0, water:0, notes:'Fast-payback operational upgrade.'},
+  {id:'elecLighting', category:'Electrical', title:'LED + controls', defaultType:'LED retrofit + occupancy/daylight controls', cost:265000, elec:11.0, gas:0.0, water:0, notes:'Often aligns well with electric incentive programs.'},
+  {id:'elecPoe', category:'Electrical', title:'Power over Ethernet lighting', defaultType:'PoE lighting + control network', cost:420000, elec:9.0, gas:0.8, water:0, notes:'Supports data-rich smart building strategy.'},
+  {id:'elecSolar', category:'Electrical', title:'Solar PV', defaultType:'Rooftop solar offset', cost:750000, elec:12.0, gas:0.0, water:0, notes:'Offsets annual electricity use; useful for carbon narrative.'},
+  {id:'plumbFixtures', category:'Plumbing', title:'Low-flow fixture retrofit', defaultType:'Low-flow package', cost:95000, elec:0.2, gas:0.7, water:15.0, notes:'Water, sewer, and DHW savings.'},
+  {id:'plumbDHW', category:'Plumbing', title:'DHW / recirculation controls', defaultType:'DHW optimization', cost:175000, elec:0.6, gas:2.2, water:4.0, notes:'Useful where domestic hot water loads are meaningful.'},
+  {id:'plumbReuse', category:'Plumbing', title:'Water reuse / greywater', defaultType:'Greywater reuse concept', cost:390000, elec:0.0, gas:0.0, water:25.0, notes:'Best for larger campus or institutional water strategies.'}
+];
+
+const typeOptions = {
+  'Envelope':['Roof replacement R20 to R30','Deep roof + air barrier','Window replacement double to triple','Curtain wall retrofit','Air sealing package'],
+  'Mechanical':['RTU to high efficiency RTU','RTU to hybrid heat pump','Boiler to condensing boiler','Boiler electrification / heat pump plant','Controls optimization / recommissioning'],
+  'Electrical':['LED retrofit + controls','PoE lighting + controls','Smart panels / submetering','Solar PV','Battery storage / demand management'],
+  'Plumbing':['Low-flow package','DHW optimization','Recirculation controls','Leak detection','Greywater reuse']
+};
+
+const programDefs = [
+  {id:'prog1', name:'SOFIAC / performance funding', type:'performance', low:10, expected:18, high:25, cap:2500000, category:'all', stack:1.00, notes:'Broad project financing or performance-based support.'},
+  {id:'prog2', name:'Efficiency Capital / private capital blend', type:'financing', low:5, expected:10, high:15, cap:1500000, category:'all', stack:0.90, notes:'Structured capital blend; not always additive like a direct rebate.'},
+  {id:'prog3', name:'Enbridge / gas efficiency', type:'rebate', low:3, expected:6, high:10, cap:600000, category:'gas', stack:0.85, notes:'Weighted toward gas-reducing measures.'},
+  {id:'prog4', name:'Save on Energy / electric efficiency', type:'rebate', low:4, expected:8, high:12, cap:750000, category:'electric', stack:0.90, notes:'Weighted toward electric-reducing or demand-reducing measures.'},
+  {id:'prog5', name:'BOMA / market recognition / utility support', type:'grant', low:2, expected:4, high:8, cap:300000, category:'all', stack:0.75, notes:'Use for other market-facing incentives or utility overlays.'},
+  {id:'prog6', name:'Water / municipal / custom incentive', type:'grant', low:1, expected:3, high:6, cap:250000, category:'water', stack:0.80, notes:'Use when a water or municipal angle exists.'}
+];
+
+function n(id){ const el=document.getElementById(id); const v=parseFloat(el?.value); return isNaN(v)?0:v; }
+function byId(id){ return document.getElementById(id); }
+function money(v){ return new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD',maximumFractionDigits:0}).format(v||0); }
+function num(v,d=0){ return new Intl.NumberFormat('en-CA',{maximumFractionDigits:d, minimumFractionDigits:d}).format(v||0); }
+function avg(a,b){ return (a+b)/2; }
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+function renderMeasures(){
+  const buckets = {Envelope:[], Mechanical:[], Electrical:[], Plumbing:[]};
+  measureLibrary.forEach(m=>buckets[m.category].push(m));
+  Object.keys(buckets).forEach(cat=>{
+    const target = byId('cat'+cat);
+    target.innerHTML = buckets[cat].map(m=>{
+      const options = (typeOptions[cat]||[]).map(opt=>`<option ${opt===m.defaultType?'selected':''}>${opt}</option>`).join('');
+      return `
+        <div class="measure-card">
+          <div class="measure-head">
+            <div>
+              <div class="measure-title">${m.title}</div>
+              <div class="mini">${m.notes}</div>
+            </div>
+            <div class="switch"><input type="checkbox" id="${m.id}_on" ${['envRoof','envWalls','envWindows','mechRTU','elecPoe','plumbDHW'].includes(m.id)?'checked':''}><label for="${m.id}_on" style="margin:0;">Use</label></div>
+          </div>
+          <div class="grid4">
+            <div><label for="${m.id}_type">Library type</label><select id="${m.id}_type">${options}</select></div>
+            <div><label for="${m.id}_cost">Capex ($)</label><input id="${m.id}_cost" type="number" value="${m.cost}"></div>
+            <div><label for="${m.id}_scope">Scope qty / area</label><input id="${m.id}_scope" type="number" value="1"></div>
+            <div><label for="${m.id}_eligible">Incentive eligible %</label><input id="${m.id}_eligible" type="number" step="1" value="100"></div>
+          </div>
+          <div class="grid4" style="margin-top:10px;">
+            <div><label for="${m.id}_elec">Electric savings %</label><input id="${m.id}_elec" type="number" step="0.1" value="${m.elec}"></div>
+            <div><label for="${m.id}_gas">Gas savings %</label><input id="${m.id}_gas" type="number" step="0.1" value="${m.gas}"></div>
+            <div><label for="${m.id}_water">Water savings %</label><input id="${m.id}_water" type="number" step="0.1" value="${m.water}"></div>
+            <div><label for="${m.id}_demand">Demand reduction %</label><input id="${m.id}_demand" type="number" step="0.1" value="0"></div>
+          </div>
+          <div style="margin-top:10px;"><label for="${m.id}_notes">Measure notes</label><input id="${m.id}_notes" value="${m.notes}"></div>
+        </div>`;
+    }).join('');
+  });
+}
+
+function renderPrograms(){
+  const target = byId('programCards');
+  target.innerHTML = programDefs.map((p, idx)=>`
+    <div class="prog-card">
+      <div class="prog-head">
+        <div><strong>${p.name}</strong><div class="mini">${p.notes}</div></div>
+        <div class="switch"><input type="checkbox" id="${p.id}_on" ${idx<4?'checked':''}><label for="${p.id}_on" style="margin:0;">Use</label></div>
+      </div>
+      <div class="grid2">
+        <div><label for="${p.id}_name">Program name</label><input id="${p.id}_name" value="${p.name}"></div>
+        <div><label for="${p.id}_type">Funding type</label><select id="${p.id}_type"><option ${p.type==='grant'?'selected':''}>grant</option><option ${p.type==='rebate'?'selected':''}>rebate</option><option ${p.type==='financing'?'selected':''}>financing</option><option ${p.type==='performance'?'selected':''}>performance</option></select></div>
+      </div>
+      <div class="grid4" style="margin-top:10px;">
+        <div><label for="${p.id}_low">Conservative %</label><input id="${p.id}_low" type="number" step="0.1" value="${p.low}"></div>
+        <div><label for="${p.id}_expected">Expected %</label><input id="${p.id}_expected" type="number" step="0.1" value="${p.expected}"></div>
+        <div><label for="${p.id}_high">Aggressive %</label><input id="${p.id}_high" type="number" step="0.1" value="${p.high}"></div>
+        <div><label for="${p.id}_cap">Cap ($)</label><input id="${p.id}_cap" type="number" value="${p.cap}"></div>
+      </div>
+      <div class="grid3" style="margin-top:10px;">
+        <div><label for="${p.id}_category">Eligible category</label><select id="${p.id}_category"><option ${p.category==='all'?'selected':''}>all</option><option ${p.category==='electric'?'selected':''}>electric</option><option ${p.category==='gas'?'selected':''}>gas</option><option ${p.category==='water'?'selected':''}>water</option></select></div>
+        <div><label for="${p.id}_stack">Stack multiplier</label><input id="${p.id}_stack" type="number" step="0.05" value="${p.stack.toFixed(2)}"></div>
+        <div><label for="${p.id}_maxshare">Max funded share %</label><input id="${p.id}_maxshare" type="number" step="1" value="100"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function getBaseline(){
+  const escalation = 1 + n('priceEscalation')/100;
+  const avgKwh = avg(n('y1kwh'), n('y2kwh'));
+  const avgKw = avg(n('y1kw'), n('y2kw'));
+  const avgElecRate = avg(n('y1elecRate'), n('y2elecRate')) * escalation;
+  const avgGas = avg(n('y1gas'), n('y2gas'));
+  const avgGasRate = avg(n('y1gasRate'), n('y2gasRate')) * escalation;
+  const avgWaterM3 = avg(n('y1waterM3'), n('y2waterM3'));
+  const waterRate = n('waterUnitRate') * escalation;
+  return {
+    kwh:avgKwh,
+    kw:avgKw,
+    elecRate:avgElecRate,
+    elecCost:avgKwh*avgElecRate,
+    gas:avgGas,
+    gasRate:avgGasRate,
+    gasCost:avgGas*avgGasRate,
+    waterM3:avgWaterM3,
+    waterRate,
+    waterCost:avgWaterM3*waterRate,
+    climateFactor:n('climateFactor')||1,
+    gasGhgi:n('gasGhgi'),
+    elecGhgi:n('elecGhgi'),
+    waterGhgi:n('waterGhgi')
+  };
+}
+
+function measureIds(){ return measureLibrary.map(m=>m.id); }
+
+function calculateMeasures(base){
+  const overlap = clamp(n('overlapFactor')/100, 0.10, 1.00);
+  const maxCap = clamp(n('maxSavingsCap')/100, 0.10, 0.95);
+  let totalCapex = 0, totalEligibleCapex = 0, rawElecPct = 0, rawGasPct = 0, rawWaterPct = 0;
+  const rows = [];
+  const categoryCapex = {all:0,electric:0,gas:0,water:0};
+
+  measureIds().forEach(id=>{
+    if(!byId(id+'_on').checked) return;
+    const scope = Math.max(0, n(id+'_scope')||1);
+    const capex = n(id+'_cost') * scope;
+    const elecPct = Math.max(0, n(id+'_elec'));
+    const gasPct = Math.max(0, n(id+'_gas'));
+    const waterPct = Math.max(0, n(id+'_water'));
+    const eligiblePct = clamp(n(id+'_eligible')/100,0,1);
+    const elecKwh = base.kwh * elecPct/100 * overlap;
+    const gasM3 = base.gas * gasPct/100 * overlap * base.climateFactor;
+    const waterM3 = base.waterM3 * waterPct/100 * overlap;
+    const elecSave = elecKwh * base.elecRate;
+    const gasSave = gasM3 * base.gasRate;
+    const waterSave = waterM3 * base.waterRate;
+    const ghgKg = elecKwh*base.elecGhgi + gasM3*base.gasGhgi + waterM3*base.waterGhgi;
+    const eligibleCapex = capex * eligiblePct;
+
+    totalCapex += capex;
+    totalEligibleCapex += eligibleCapex;
+    rawElecPct += elecPct;
+    rawGasPct += gasPct;
+    rawWaterPct += waterPct;
+    categoryCapex.all += eligibleCapex;
+    if(elecPct>0) categoryCapex.electric += eligibleCapex;
+    if(gasPct>0) categoryCapex.gas += eligibleCapex;
+    if(waterPct>0) categoryCapex.water += eligibleCapex;
+
+    rows.push({
+      id,
+      name: byId(id+'_type').value || measureLibrary.find(m=>m.id===id).title,
+      group: measureLibrary.find(m=>m.id===id).category,
+      capex,
+      eligibleCapex,
+      elecSave,
+      gasSave,
+      waterSave,
+      ghgKg,
+      notes: byId(id+'_notes').value || ''
+    });
+  });
+
+  const elecPct = clamp(rawElecPct * overlap, 0, maxCap*100);
+  const gasPct = clamp(rawGasPct * overlap, 0, maxCap*100);
+  const waterPct = clamp(rawWaterPct * overlap, 0, maxCap*100);
+
+  const elecKwhTotal = base.kwh * elecPct/100;
+  const gasM3Total = base.gas * gasPct/100;
+  const waterM3Total = base.waterM3 * waterPct/100;
+  const elecSaveTotal = elecKwhTotal * base.elecRate;
+  const gasSaveTotal = gasM3Total * base.gasRate;
+  const waterSaveTotal = waterM3Total * base.waterRate;
+  const ghgKgTotal = elecKwhTotal*base.elecGhgi + gasM3Total*base.gasGhgi + waterM3Total*base.waterGhgi;
+
+  return {
+    rows,
+    totalCapex,
+    totalEligibleCapex,
+    elecPct, gasPct, waterPct,
+    elecKwhTotal, gasM3Total, waterM3Total,
+    elecSaveTotal, gasSaveTotal, waterSaveTotal,
+    ghgKgTotal,
+    categoryCapex
+  };
+}
+
+function categoryFactor(programCategory, measures){
+  if(programCategory==='all') return 1;
+  const total = measures.totalEligibleCapex || 1;
+  const catCapex = measures.categoryCapex[programCategory] || 0;
+  return clamp(catCapex/total, 0, 1);
+}
+
+function calculatePrograms(measures){
+  const rows=[];
+  let conservative=0, expected=0, aggressive=0, active=0;
+  programDefs.forEach(p=>{
+    if(!byId(p.id+'_on').checked) return;
+    active += 1;
+    const programName = byId(p.id+'_name').value || p.name;
+    const category = byId(p.id+'_category').value || 'all';
+    const factor = categoryFactor(category, measures);
+    const stack = clamp(n(p.id+'_stack')||1, 0, 1.5);
+    const maxShare = clamp(n(p.id+'_maxshare')/100, 0, 1);
+    const eligibleBase = (category==='all' ? measures.totalEligibleCapex : (measures.categoryCapex[category] || 0)) * maxShare;
+    const cap = n(p.id+'_cap');
+    const low = Math.min(eligibleBase*(n(p.id+'_low')/100)*factor*stack, cap || Infinity);
+    const exp = Math.min(eligibleBase*(n(p.id+'_expected')/100)*factor*stack, cap || Infinity);
+    const high = Math.min(eligibleBase*(n(p.id+'_high')/100)*factor*stack, cap || Infinity);
+    conservative += low; expected += exp; aggressive += high;
+    rows.push({name:programName, low, exp, high});
+  });
+
+  conservative = Math.min(conservative, measures.totalCapex);
+  expected = Math.min(Math.max(conservative, expected), measures.totalCapex);
+  aggressive = Math.min(Math.max(expected, aggressive), measures.totalCapex);
+  return {rows, conservative, expected, aggressive, active};
+}
+
+
+function calculateNoi(base, measures, programs){
+  const includeWater = byId('includeInNoi').value === 'Yes';
+  const annualUtilitySavings = measures.elecSaveTotal + measures.gasSaveTotal + (includeWater ? measures.waterSaveTotal : 0);
+  const annualRecurring = annualUtilitySavings + n('maintenanceSavings') + n('rentPremium');
+  const noiUplift = annualRecurring * clamp(n('noiCapture')/100, 0, 1.5);
+  const selectedCapRatePct = byId('valueMethod').value === 'Exit cap rate' ? n('exitCapRate') : n('marketCapRate');
+  const selectedCapRate = Math.max(0.0001, selectedCapRatePct/100);
+  const marketCapRate = Math.max(0.0001, n('marketCapRate')/100);
+  const exitCapRate = Math.max(0.0001, n('exitCapRate')/100);
+  const expectedNetCapitalBase = Math.max(0, measures.totalCapex - programs.expected);
+  const expectedNetCapital = expectedNetCapitalBase * (1 + n('softCostPremium')/100);
+  const valueUplift = noiUplift / selectedCapRate;
+  const valueAtMarketCap = noiUplift / marketCapRate;
+  const valueAtExitCap = noiUplift / exitCapRate;
+  const valueCreationRatio = expectedNetCapital>0 ? valueUplift / expectedNetCapital : 0;
+  const netYield = expectedNetCapital>0 ? noiUplift / expectedNetCapital : 0;
+  const currentValue = n('currentAssetValue');
+  const currentNoi = n('currentNoi');
+  const stabilizedNoi = currentNoi + noiUplift;
+  const stabilizedValue = currentValue + valueUplift;
+  const horizon = Math.max(1, n('investmentHorizon'));
+  const escalation = n('annualEscalation')/100;
+  let cumulative=0;
+  for(let yr=1; yr<=horizon; yr++){ cumulative += noiUplift * Math.pow(1+escalation, yr-1); }
+  return {annualUtilitySavings, annualRecurring, noiUplift, selectedCapRatePct, expectedNetCapital, valueUplift, valueAtMarketCap, valueAtExitCap, valueCreationRatio, netYield, currentValue, currentNoi, stabilizedNoi, stabilizedValue, cumulative, horizon};
+}
+
+function renderOutputs(base, measures, programs){
+  const annualSavings = measures.elecSaveTotal + measures.gasSaveTotal + measures.waterSaveTotal;
+  const noi = calculateNoi(base, measures, programs);
+  const paybackExpected = annualSavings>0 ? Math.max(0, measures.totalCapex - programs.expected) / annualSavings : 0;
+  byId('outCapex').textContent = money(measures.totalCapex);
+  byId('outFunding').textContent = `${money(programs.conservative)} - ${money(programs.aggressive)}`;
+  byId('outNet').textContent = `${money(Math.max(0, measures.totalCapex - programs.aggressive))} - ${money(Math.max(0, measures.totalCapex - programs.conservative))}`;
+  byId('outAnnual').textContent = money(annualSavings);
+  byId('outGhg').textContent = `${num(measures.ghgKgTotal/1000,1)} tCO₂e`;
+  byId('outPayback').textContent = `${num(paybackExpected,1)} yrs`;
+  byId('tagElec').textContent = `${num(measures.elecPct,1)}% electricity reduction`;
+  byId('tagGas').textContent = `${num(measures.gasPct,1)}% gas reduction`;
+  byId('tagWater').textContent = `${num(measures.waterPct,1)}% water reduction`;
+  byId('tagPrograms').textContent = `${programs.active} active programs`;
+  byId('outNoi').textContent = money(noi.noiUplift);
+  byId('outValue').textContent = money(noi.valueUplift);
+  byId('outValueRatio').textContent = `${num(noi.valueCreationRatio,2)}x`;
+  byId('outNetYield').textContent = `${num(noi.netYield*100,1)}%`;
+
+  const postKwh = base.kwh - measures.elecKwhTotal;
+  const postGas = base.gas - measures.gasM3Total;
+  const postWater = base.waterM3 - measures.waterM3Total;
+  byId('baselineTable').innerHTML = `
+    <tr><td>Electricity use (kWh/yr)</td><td class="right">${num(base.kwh,0)}</td><td class="right">${num(measures.elecKwhTotal,0)}</td><td class="right">${num(postKwh,0)}</td></tr>
+    <tr><td>Electricity cost ($/yr)</td><td class="right">${money(base.elecCost)}</td><td class="right">${money(measures.elecSaveTotal)}</td><td class="right">${money(base.elecCost-measures.elecSaveTotal)}</td></tr>
+    <tr><td>Gas use (m³/yr)</td><td class="right">${num(base.gas,0)}</td><td class="right">${num(measures.gasM3Total,0)}</td><td class="right">${num(postGas,0)}</td></tr>
+    <tr><td>Gas cost ($/yr)</td><td class="right">${money(base.gasCost)}</td><td class="right">${money(measures.gasSaveTotal)}</td><td class="right">${money(base.gasCost-measures.gasSaveTotal)}</td></tr>
+    <tr><td>Water use (m³/yr)</td><td class="right">${num(base.waterM3,0)}</td><td class="right">${num(measures.waterM3Total,0)}</td><td class="right">${num(postWater,0)}</td></tr>
+    <tr><td>Water / sewer cost ($/yr)</td><td class="right">${money(base.waterCost)}</td><td class="right">${money(measures.waterSaveTotal)}</td><td class="right">${money(base.waterCost-measures.waterSaveTotal)}</td></tr>
+  `;
+
+  byId('scenarioTable').innerHTML = [
+    {name:'Conservative', fund:programs.conservative},
+    {name:'Expected', fund:programs.expected},
+    {name:'Aggressive', fund:programs.aggressive}
+  ].map(s=>{
+    const net = Math.max(0, measures.totalCapex - s.fund);
+    const pb = annualSavings>0 ? net/annualSavings : 0;
+    return `<tr><td>${s.name}</td><td class="right">${money(s.fund)}</td><td class="right">${money(net)}</td><td class="right">${num(pb,1)} yrs</td></tr>`;
+  }).join('');
+
+  byId('noiTable').innerHTML = `
+    <tr><td>Current annual NOI</td><td class="right">${money(noi.currentNoi)}</td></tr>
+    <tr><td>Projected annual NOI uplift</td><td class="right">${money(noi.noiUplift)}</td></tr>
+    <tr><td>Stabilized annual NOI</td><td class="right">${money(noi.stabilizedNoi)}</td></tr>
+    <tr><td>Cap-rate used for valuation</td><td class="right">${num(noi.selectedCapRatePct,2)}%</td></tr>
+    <tr><td>Implied value uplift</td><td class="right">${money(noi.valueUplift)}</td></tr>
+    <tr><td>Value uplift at market cap</td><td class="right">${money(noi.valueAtMarketCap)}</td></tr>
+    <tr><td>Value uplift at exit cap</td><td class="right">${money(noi.valueAtExitCap)}</td></tr>
+    <tr><td>Expected net capital incl. soft costs</td><td class="right">${money(noi.expectedNetCapital)}</td></tr>
+    <tr><td>Expected net yield on capital</td><td class="right">${num(noi.netYield*100,2)}%</td></tr>
+    <tr><td>${noi.horizon}-year cumulative NOI benefit</td><td class="right">${money(noi.cumulative)}</td></tr>
+  `;
+
+  byId('measureTable').innerHTML = measures.rows.length ? measures.rows.map(r=>`
+    <tr><td>${r.group} — ${r.name}</td><td class="right">${money(r.capex)}</td><td class="right">${money(r.elecSave)}</td><td class="right">${money(r.gasSave)}</td><td class="right">${money(r.waterSave)}</td><td class="right">${num(r.ghgKg/1000,2)}</td></tr>
+  `).join('') : '<tr><td colspan="6">No measures selected.</td></tr>';
+
+  byId('programOut').innerHTML = programs.rows.length ? programs.rows.map(r=>`
+    <tr><td>${r.name}</td><td class="right">${money(r.low)}</td><td class="right">${money(r.exp)}</td><td class="right">${money(r.high)}</td></tr>
+  `).join('') : '<tr><td colspan="4">No funding programs enabled.</td></tr>';
+
+  const client = byId('clientName').value || 'Client';
+  const project = byId('projectName').value || 'Project';
+  const selectedNames = measures.rows.map(r=>r.name);
+  const topMeasures = measures.rows.slice().sort((a,b)=>(b.elecSave+b.gasSave+b.waterSave)-(a.elecSave+a.gasSave+a.waterSave)).slice(0,4);
+  const annual = annualSavings;
+  const summary = `${client} — ${project}\n\n` +
+    `Gross project capex: ${money(measures.totalCapex)}\n` +
+    `Potential funding range: ${money(programs.conservative)} to ${money(programs.aggressive)}\n` +
+    `Expected funding view: ${money(programs.expected)}\n` +
+    `Estimated annual utility savings: ${money(annual)}\n` +
+    `Estimated annual GHG reduction: ${num(measures.ghgKgTotal/1000,1)} tCO₂e\n` +
+    `Estimated annual electricity reduction: ${num(measures.elecPct,1)}%\n` +
+    `Estimated annual gas reduction: ${num(measures.gasPct,1)}%\n` +
+    `Estimated annual water reduction: ${num(measures.waterPct,1)}%\n` +
+    `Expected simple payback after funding: ${num(paybackExpected,1)} years\n\n` +
+    `Selected upgrades: ${selectedNames.join(', ') || 'None'}\n\n` +
+    `Notes: ${byId('notes').value || ''}\n\n` +
+    `Disclaimer: Preliminary screening estimate only. Final values require engineering review and program confirmation.`;
+  byId('summaryBox').value = summary;
+
+  byId('proposalExecutive').innerHTML = `
+    <strong>${client}</strong> may have a preliminary decarbonization opportunity in the range of <strong>${money(programs.conservative)} to ${money(programs.aggressive)}</strong> against a gross project value of <strong>${money(measures.totalCapex)}</strong>. The current expected annual utility savings are <strong>${money(annualSavings)}</strong>, with an annual greenhouse gas reduction of <strong>${num(measures.ghgKgTotal/1000,1)} tCO₂e</strong>.`;
+
+  byId('proposalFunding').innerHTML = programs.rows.length ?
+    `Active programs suggest a conservative / expected / aggressive stack of <strong>${money(programs.conservative)}</strong>, <strong>${money(programs.expected)}</strong>, and <strong>${money(programs.aggressive)}</strong>. The model weights each program against relevant measure categories and applies stack multipliers and caps to reduce overstating the funding picture.` :
+    `No active programs are enabled yet.`;
+
+  byId('proposalMeasures').innerHTML = topMeasures.length ?
+    `<ul>${topMeasures.map(r=>`<li><strong>${r.name}</strong> — capex ${money(r.capex)}, annual utility savings ${money(r.elecSave+r.gasSave+r.waterSave)}, annual GHG reduction ${num(r.ghgKg/1000,2)} tCO₂e.</li>`).join('')}</ul>` :
+    `No upgrade measures are currently selected.`;
+
+  byId('proposalNoi').innerHTML = `The current assumptions indicate a recurring NOI uplift of <strong>${money(noi.noiUplift)}</strong> per year. Using the selected <strong>${num(noi.selectedCapRatePct,2)}%</strong> cap-rate view, that implies roughly <strong>${money(noi.valueUplift)}</strong> of asset value creation, with an expected net yield on capital of <strong>${num(noi.netYield*100,1)}%</strong> and a value creation ratio of <strong>${num(noi.valueCreationRatio,2)}x</strong>.`;
+}
+
+
+function calculateAll(){
+  const base = getBaseline();
+  const measures = calculateMeasures(base);
+  const programs = calculatePrograms(measures);
+  renderOutputs(base, measures, programs);
+}
+
+function allFields(){ return Array.from(document.querySelectorAll('input, select, textarea')); }
+function saveData(){
+  const data={};
+  allFields().forEach(el=>{ data[el.id] = el.type==='checkbox' ? el.checked : el.value; });
+  localStorage.setItem('rimkus_incentive_engine_v3', JSON.stringify(data));
+  calculateAll();
+  alert('Version 3 calculator data saved in this browser.');
+}
+function loadData(){
+  const raw = localStorage.getItem('rimkus_incentive_engine_v3');
+  if(!raw){ alert('No saved Version 3 data found in this browser yet.'); return; }
+  const data = JSON.parse(raw);
+  allFields().forEach(el=>{
+    if(!(el.id in data)) return;
+    if(el.type==='checkbox') el.checked = !!data[el.id];
+    else el.value = data[el.id];
+  });
+  calculateAll();
+}
+function resetDefaults(){
+  localStorage.removeItem('rimkus_incentive_engine_v3');
+  location.reload();
+}
+async function copySummary(){
+  calculateAll();
+  const txt = byId('summaryBox').value;
+  try {
+    await navigator.clipboard.writeText(txt);
+    alert('Client summary copied to clipboard.');
+  } catch(e) {
+    alert('Clipboard copy was blocked by the browser. You can still copy from the summary box manually.');
+  }
+}
+
+renderMeasures();
+renderPrograms();
+setTimeout(calculateAll, 0);
+</script>
+</body>
+</html>
